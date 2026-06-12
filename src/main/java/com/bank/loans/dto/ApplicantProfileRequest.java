@@ -1,14 +1,25 @@
 package com.bank.loans.dto;
 
 import java.math.BigDecimal;
+import jakarta.validation.constraints.*;
 
 public class ApplicantProfileRequest {
+    @NotBlank(message = "Applicant ID is required")
     private String applicantId;
+    @NotBlank
+    @Size(min = 2, max = 100)
     private String fullName;
+    @NotBlank
+    @Pattern(regexp = "[A-Z]{5}[0-9]{4}[A-Z]{1}", message = "Invalid PAN format")
     private String panNumber;
+    @NotBlank
+    @Email(message = "Invalid email address")
     private String emailAddress;
+    @Pattern(regexp = "^[6-9]\\d{9}$", message = "Invalid Indian mobile number")
     private String mobileNumber;
+    @DecimalMin(value = "0", inclusive = true)
     private BigDecimal netWorth;
+    @Min(value = 0, message = "Dependents cannot be negative")
     private Integer dependents;
 
     public String getApplicantId() { return applicantId; }

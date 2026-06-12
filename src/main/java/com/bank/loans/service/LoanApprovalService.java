@@ -4,6 +4,8 @@ import com.bank.loans.domain.LoanApplication;
 import com.bank.loans.dto.LoanApplicationRequest;
 import com.bank.loans.dto.LoanDecisionResponse;
 import com.bank.loans.repository.LoanApplicationRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -14,6 +16,8 @@ import java.util.stream.Collectors;
 @Service
 public class LoanApprovalService {
 
+    private static final Logger logger = LoggerFactory.getLogger(LoanApprovalService.class);
+
     private LoanApplicationRepository loanApplicationRepository;
 
     public LoanApprovalService(LoanApplicationRepository loanApplicationRepository) {
@@ -21,7 +25,7 @@ public class LoanApprovalService {
     }
 
     public LoanDecisionResponse processApplication(LoanApplicationRequest request) {
-        System.out.println("Processing loan for: " + request.getApplicantId());
+        logger.info("Processing loan for applicant: {}", request.getApplicantId());
 
         LoanApplication application = new LoanApplication();
 

@@ -1,10 +1,17 @@
 package com.bank.loans.dto;
 
 import java.math.BigDecimal;
+import jakarta.validation.constraints.*;
 
 public class LoanAmendmentRequest {
+    @NotNull(message = "Application ID is required")
     private Long applicationId;
+    @NotNull
+    @DecimalMin(value = "10000", message = "Minimum loan is Rs.10,000")
+    @DecimalMax(value = "5000000", message = "Maximum loan is Rs.50,00,000")
     private BigDecimal newRequestedAmount;
+    @NotBlank
+    @Size(min = 2, max = 100)
     private String reason;
 
     public Long getApplicationId() { return applicationId; }
