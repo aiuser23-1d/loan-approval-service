@@ -4,17 +4,21 @@ import com.bank.loans.domain.LoanApplication;
 import com.bank.loans.dto.LoanApplicationRequest;
 import com.bank.loans.dto.LoanDecisionResponse;
 import com.bank.loans.repository.LoanApplicationRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class LoanApprovalService {
 
-    @Autowired
     private LoanApplicationRepository loanApplicationRepository;
+
+    public LoanApprovalService(LoanApplicationRepository loanApplicationRepository) {
+        this.loanApplicationRepository = loanApplicationRepository;
+    }
 
     public LoanDecisionResponse processApplication(LoanApplicationRequest request) {
         System.out.println("Processing loan for: " + request.getApplicantId());
@@ -44,5 +48,11 @@ public class LoanApprovalService {
         }
 
         return new LoanDecisionResponse(null, status, rate, message);
+    }
+
+    public List<LoanApplication> getLoanApplicationsByApplicant(String applicantId) {
+        return loanApplicationRepository.findByApplicantId(applicantId).stream()
+                .sorted((app1, app2) -> app2.getCreatedAt().compareTo(app1.getCreatedAt()))
+                .collect(Collectors.toList());
     }
 }
