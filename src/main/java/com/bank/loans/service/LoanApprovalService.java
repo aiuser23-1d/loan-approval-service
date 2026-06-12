@@ -8,50 +8,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
 public class LoanApprovalService {
 
-    private static final Logger logger = LoggerFactory.getLogger(LoanApprovalService.class);
+    private static final Logger log = LoggerFactory.getLogger(LoanApprovalService.class);
 
-    private LoanApplicationRepository loanApplicationRepository;
+    private final LoanApplicationRepository loanApplicationRepository;
+    private final LoanDecisionEngine loanDecisionEngine;
 
-    public LoanApprovalService(LoanApplicationRepository loanApplicationRepository) {
-        this.loanApplicationRepository = loanApplicationRepository;
+    public LoanApprovalService(LoanApplicationRepository loanApplicationRepository,
+                               LoanDecisionEngine loanDecisionEngine) {
+        this.loanApplicationRepository = Objects.requireNonNull(loanApplicationRepository,
+                "LoanApplicationRepository cannot be null");
+        this.loanDecisionEngine = Objects.requireNonNull(loanDecisionEngine,
+                "LoanDecisionEngine cannot be null");
     }
 
     public LoanDecisionResponse processApplication(LoanApplicationRequest request) {
-        logger.info("Processing loan for applicant: {}", request.getApplicantId());
+        Objects.requireNonNull(request, "LoanApplicationRequest cannot be null");
+        log.info("Processing loan for applicant: {}", request.getApplicantId());
 
-        LoanApplication application = new LoanApplication();
-
-        String status;
-        BigDecimal rate;
-        String message;
-
-        if (request.getCreditScore() == null || request.getCreditScore() < 300) {
-            status = "REJECTED";
-            rate = null;
-            message = "Credit score too low or not provided";
-        } else if (request.getCreditScore() >= 750) {
-            status = "APPROVED";
-            rate = new BigDecimal("7.5");
-            message = "Excellent credit profile";
-        } else if (request.getCreditScore() >= 600) {
-            status = "APPROVED";
-            rate = new BigDecimal("12.0");
-            message = "Standard credit profile";
-        } else {
-            status = "REJECTED";
-            rate = null;
-            message = "Credit score below minimum threshold";
-        }
-
-        return new LoanDecisionResponse(null, status, rate, message);
+        return loanDecisionEngine.evaluate(request);
     }
 
     public List<LoanApplication> getLoanApplicationsByApplicant(String applicantId) {
